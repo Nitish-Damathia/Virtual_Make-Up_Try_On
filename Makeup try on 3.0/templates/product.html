@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ product_type.title() }} - Product Page</title>
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='images/background.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: Arial, sans-serif;
+            color: #000000;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 3rem;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Text shadow for better readability */
+        }
+
+        .product-container {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+        }
+
+        .product-container img {
+            width: 300px;
+            border-radius: 10px; /* Optional: adds rounded corners */
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7); /* Optional: adds shadow to the image */
+        }
+
+        form {
+            margin-top: 30px;
+        }
+
+        label {
+            font-size: 1.2rem;
+            margin-right: 10px;
+        }
+
+        input[type="color"] {
+            height: 40px;
+            width: 80px;
+            border: none;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #8c4a67;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #5f1938; /* Hover effect */
+        }
+
+        .back-link {
+            margin-top: 30px;
+            display: block;
+            text-align: center;
+            font-size: 1.2rem;
+            color: #fff;
+            text-decoration: none;
+            background-color: #8c4a67;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        .back-link:hover {
+            background-color: #5f1938; /* Hover effect */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Product Page Heading -->
+    <h1>{{ product_type.title() }}</h1>
+
+    <!-- Product Image -->
+    <div class="product-container">
+        <img src="{{ url_for('static', filename='products/' + product_type + '.jpg') }}" alt="{{ product_type }} Image">
+
+        <!-- Try-On Form -->
+        <form action="/tryon/{{ product_type }}" method="post">
+            <label for="color">Select Color:</label>
+            <input type="color" name="color" value="#ff0000" id="color">
+            <button type="submit">Try On</button>
+        </form>
+    </div>
+
+    <!-- Back Link -->
+    <br>
+    <a href="/" class="back-link">← Back</a>
+
+</body>
+</html>
