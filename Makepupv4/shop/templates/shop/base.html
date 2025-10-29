@@ -1,0 +1,106 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Virtual Make Try-On{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="{% static 'shop/css/style.css' %}" rel="stylesheet">
+
+    <style>
+        /* Cart badge styling */
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background: red;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 50%;
+        }
+        .navbar-cart {
+            position: relative;
+        }
+        .cart-icon {
+            width: 32px;
+            height: 32px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ✅ Shared Navbar -->
+<nav class="navbar navbar-expand-lg navbar-custom px-4 position-relative">
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'index' %}">
+        <img src="{% static 'shop/images/tryonika.png' %}" alt="Logo" height="60" width="150" class="me-2">
+    </a>
+
+    <div class="collapse navbar-collapse">
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'index' %}">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == '/products/' %}active{% endif %}" href="{% url 'products' %}">Products</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == '/contact/' %}active{% endif %}" href="{% url 'contact' %}">Contact Us</a>
+            </li>
+        </ul>
+<ul class="navbar-nav ms-auto">
+        {% if user.is_authenticated %}
+            <li class="nav-item me-3">
+                <span class="nav-link">Hello, {{ user.username }} 👋</span>
+            </li>
+            <li class="nav-item me-3">
+                <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm">Logout</a>
+            </li>
+        {% else %}
+            <li class="nav-item me-2">
+                <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm">Login</a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'signup' %}" class="btn btn-primary btn-sm">Register</a>
+            </li>
+        {% endif %}
+    </ul>
+        <!-- ✅ Cart aligned to right -->
+        <div class="navbar-cart ms-auto">
+            <a href="{% url 'view_cart' %}" class="cart-link position-relative">
+                <img src="{% static 'shop/images/cart.png' %}" alt="Cart" class="cart-icon">
+                {% if request.session.cart %}
+                    <span class="cart-count">{{ request.session.cart|length }}</span>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+</nav>
+
+    <!-- ✅ Cart Icon with Counter -->
+    <div class="navbar-cart">
+        <a href="{% url 'view_cart' %}" class="cart-link position-relative">
+            <img src="{% static 'shop/images/cart.png' %}" alt="Cart" class="cart-icon">
+            {% if request.session.cart %}
+                <span class="cart-count">{{ request.session.cart|length }}</span>
+            {% endif %}
+        </a>
+    </div>
+</nav>
+
+<!-- ✅ Page-specific content -->
+{% block content %}{% endblock %}
+
+<footer class="site-footer">
+    <div class="footer-text-block">
+        <p class="footer-text">Let's Get Ready</p>
+        <p class="footer-subtext">Do you want unique look? Try our products.</p>
+        <a href="{% url 'products' %}" class="footer-shop-button">Shop Now</a>
+    </div>
+</footer>
+
+</body>
+</html>

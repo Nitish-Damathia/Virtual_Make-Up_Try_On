@@ -1,0 +1,258 @@
+{% extends "shop/base.html" %}
+{% block title %}Try On Foundation{% endblock %}
+{% load static %}
+
+{% block content %}
+<style>
+    .video-container {
+        position: relative;
+        display: inline-block;
+        margin-top: 30px;
+    }
+    #video, #canvas {
+        width: 500px;
+        height: 375px;
+        border-radius: 10px;
+    }
+    #canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        pointer-events: none;
+    }
+    h1 {
+        text-align: center;
+        margin: 40px 0 10px;
+        font-size: 2.5rem;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .price-tag {
+        margin-top: 25px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #e63946;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .price-tag .old-price {
+        text-decoration: line-through;
+        color: #888;
+        font-size: 1.2rem;
+        margin-right: 10px;
+    }
+
+    .price-tag span {
+        font-size: 1rem;
+        font-weight: normal;
+        color: #555;
+        margin-left: 5px;
+    }
+
+    .discount-note {
+        margin-top: 8px;
+        font-size: 1rem;
+        color: #2a9d8f;
+        font-weight: 500;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .shade-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    .shade-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: transform 0.2s, border 0.2s;
+    }
+    .shade-btn.active {
+        border: 3px solid #000;
+        transform: scale(1.1);
+    }
+    .btn-add {
+        margin-top: 25px;
+        padding: 12px 24px;
+        background-color: #111;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+    .btn-add:hover {
+        background-color: #333;
+    }
+</style>
+
+<h1>Virtual Foundation Try-On</h1>
+
+<div class="text-center">
+    <div class="video-container">
+        <video id="video" autoplay muted playsinline></video>
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="shade-buttons">
+        <div class="shade-btn" data-color="#8d5524" style="background:#8d5524;"></div>
+        <div class="shade-btn" data-color="#c68642" style="background:#c68642;"></div>
+        <div class="shade-btn" data-color="#e0ac69" style="background:#e0ac69;"></div>
+        <div class="shade-btn" data-color="#f1c27d" style="background:#f1c27d;"></div>
+        <div class="shade-btn" data-color="#ffdbac" style="background:#ffdbac;"></div>
+    </div>
+     <!-- 💲 Price Section -->
+        <div class="price-tag">
+            <span class="old-price">₹1299.00</span>
+            ₹799.00 <span>per Piece</span>
+        </div>
+        <div class="discount-note">
+            You save ₹500 (39%)
+        </div>
+
+    <!-- ✅ Add to Cart Form -->
+    <form method="post" action="{% url 'add_to_cart' 'Foundation' %}" class="mt-3">
+        {% csrf_token %}
+        <input type="hidden" name="shade" id="selectedShade" value="#f1c27d">
+        <button type="submit" class="btn-add">Add Selected Shade to Cart 🛒</button>
+    </form>
+</div>
+
+<div class="text-center mt-4">
+    <button onclick="history.back()" style="
+        padding: 10px 20px;
+        font-size: 1rem;
+        border-radius: 6px;
+        border: none;
+        background-color: #000;
+        color: white;
+        cursor: pointer;
+        margin-top: 30px;
+    ">← Go Back</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.min.js"></script>
+<script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const maskCanvas = document.createElement('canvas');
+    maskCanvas.width = canvas.width;
+    maskCanvas.height = canvas.height;
+    const maskCtx = maskCanvas.getContext('2d');
+
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext('2d');
+
+    let selectedColor = "#f1c27d";
+    const hiddenShadeInput = document.getElementById('selectedShade'); // ✅ link hidden input
+
+    const FACE_OUTLINE = [10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109];
+    const LIPS_IDX = [61,185,40,39,37,0,267,269,270,409,291,375,321,405,314,17,84,181,91,146];
+    const LEFT_EYE_IDX = [33,7,163,144,145,153,154,155,133,173,157,158,159,160,161,246];
+    const RIGHT_EYE_IDX = [362,382,381,380,374,373,390,249,263,466,388,387,386,385,384,398];
+    const LEFT_BROW_IDX = [70,63,105,66,107,55,65,52,53,46];
+    const RIGHT_BROW_IDX = [336,296,334,293,300,276,283,282,295,285];
+
+    function hexToRgb(hex) {
+        const bigint = parseInt(hex.slice(1), 16);
+        return {
+            r: (bigint >> 16) & 255,
+            g: (bigint >> 8) & 255,
+            b: bigint & 255
+        };
+    }
+
+    const faceMesh = new FaceMesh({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+    });
+
+    faceMesh.setOptions({
+        maxNumFaces: 1,
+        refineLandmarks: true,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+    });
+
+    faceMesh.onResults(results => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        maskCtx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
+
+        if (results.multiFaceLandmarks) {
+            for (const landmarks of results.multiFaceLandmarks) {
+                const w = canvas.width;
+                const h = canvas.height;
+
+                maskCtx.save();
+                maskCtx.beginPath();
+
+                FACE_OUTLINE.forEach((idx, i) => {
+                    const x = landmarks[idx].x * w;
+                    const y = landmarks[idx].y * h;
+                    if (i === 0) maskCtx.moveTo(x, y);
+                    else maskCtx.lineTo(x, y);
+                });
+                maskCtx.closePath();
+
+                function cutOut(indices) {
+                    maskCtx.moveTo(landmarks[indices[0]].x * w, landmarks[indices[0]].y * h);
+                    indices.forEach(idx => {
+                        maskCtx.lineTo(landmarks[idx].x * w, landmarks[idx].y * h);
+                    });
+                    maskCtx.closePath();
+                }
+                cutOut(LIPS_IDX);
+                cutOut(LEFT_EYE_IDX);
+                cutOut(RIGHT_EYE_IDX);
+                cutOut(LEFT_BROW_IDX);
+                cutOut(RIGHT_BROW_IDX);
+
+                maskCtx.clip('evenodd');
+
+                tempCtx.drawImage(video, 0, 0, w, h);
+
+                const rgb = hexToRgb(selectedColor);
+                maskCtx.globalAlpha = 0.15;
+                maskCtx.globalCompositeOperation = 'multiply';
+                maskCtx.fillStyle = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+                maskCtx.fillRect(0, 0, w, h);
+                maskCtx.restore();
+            }
+
+            ctx.filter = 'blur(6px)';
+            ctx.drawImage(maskCanvas, 0, 0);
+            ctx.filter = 'none';
+        }
+    });
+
+    const camera = new Camera(video, {
+        onFrame: async () => {
+            await faceMesh.send({ image: video });
+        },
+        width: 500,
+        height: 375
+    });
+    camera.start();
+
+    // Shade selection
+    document.querySelectorAll('.shade-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.shade-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedColor = btn.getAttribute('data-color');
+            hiddenShadeInput.value = selectedColor; // ✅ updates hidden input
+        });
+    });
+    document.querySelector(`.shade-btn[data-color="${selectedColor}"]`).classList.add('active');
+</script>
+{% endblock %}

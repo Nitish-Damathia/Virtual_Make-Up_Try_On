@@ -1,0 +1,11 @@
+{% extends "shop/base.html" %}
+{% block title %}Order Success{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <h2>🎉 Thank you {{ name }}!</h2>
+    <p>Your order <strong>#{{ order_id }}</strong> has been placed successfully.</p>
+    <h4>Total Paid: ₹{{ total_price }}</h4>
+    <a href="{% url 'products' %}" class="btn btn-primary mt-3">Continue Shopping</a>
+</div>
+{% endblock %}

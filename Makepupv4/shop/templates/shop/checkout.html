@@ -1,0 +1,42 @@
+{% extends "shop/base.html" %}
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Checkout </h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text" name="name" id="name" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" name="email" id="email" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="mobile" class="form-label">Mobile Number</label>
+            <input type="text" name="mobile" id="mobile" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="address" class="form-label">Full Address</label>
+            <textarea name="address" id="address" rows="3" class="form-control" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="landmark" class="form-label">Landmark</label>
+            <input type="text" name="landmark" id="landmark" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <h5>Order Total: ₹{{ total_price }}</h5>
+        </div>
+
+        <button type="submit" class="btn btn-success">Proceed to Payment ✅</button>
+    </form>
+</div>
+{% endblock %}

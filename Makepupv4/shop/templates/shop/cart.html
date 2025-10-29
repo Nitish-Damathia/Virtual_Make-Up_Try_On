@@ -1,0 +1,54 @@
+{% extends "shop/base.html" %}
+{% block title %}Your Cart{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Your Cart 🛒</h2>
+
+    {% if cart and cart|length > 0 %}
+        <ul class="list-group mb-4">
+            {% for item in cart %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ item.product }}</strong><br>
+                        {% if item.shade %}
+                            <small>
+                                Shade:
+                                <span style="background:{{ item.shade }};
+                                             padding:3px 10px;
+                                             border-radius:5px;
+                                             color:#fff;
+                                             font-size:0.85rem;">
+                                    {{ item.shade }}
+                                </span>
+                            </small><br>
+                        {% endif %}
+                        <small>Price: ₹{{ item.price }}</small><br>
+                        <small>Qty: {{ item.quantity }}</small><br>
+                        <strong>Subtotal: ₹{{ item.line_total }}</strong>
+                    </div>
+
+                    <form method="post" action="{% url 'remove_from_cart' forloop.counter0 %}" style="margin:0;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            Remove
+                        </button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <div class="text-end mb-3">
+            <h4>Total: ₹{{ total_price }}</h4>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'products' %}" class="btn btn-secondary">← Continue Shopping</a>
+            <a href="{% url 'checkout' %}" class="btn btn-primary">Proceed to Checkout</a>
+        </div>
+    {% else %}
+        <p class="mt-3">Your cart is empty.</p>
+        <a href="{% url 'products' %}" class="btn btn-primary mt-2">Shop Now</a>
+    {% endif %}
+</div>
+{% endblock %}

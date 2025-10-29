@@ -1,0 +1,52 @@
+{% extends "shop/base.html" %}
+{% block title %}Our Products{% endblock %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="products-heading mb-5 text-center">Our Products</h1>
+
+    <div class="row g-4">
+        <!-- Example Product 1 -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{% static 'shop/images/lipstickp.jpg' %}" class="card-img-top" alt="Lipstick">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Velvet Lipstick</h5>
+                    <p class="card-text">Long-lasting matte finish in various shades.</p>
+                    <a href="{% url 'lipstick_tryon' %}" class="btn" style="background-color: black; color: white;">Try Now</a>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Example Product 2 -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{% static 'shop/images/foundation.jpg' %}" class="card-img-top" alt="Foundation">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Liquid Foundation</h5>
+                    <p class="card-text">Smooth, blendable, and full coverage for every skin type.</p>
+                    <a href="{% url 'foundation_tryon' %}" class="btn" style="background-color: black; color: white;">Try Now</a>
+
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Example Product 3 -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{% static 'shop/images/eyeliner.jpg' %}" class="card-img-top" alt="Eyeliner">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Waterproof Eyeliner</h5>
+                    <p class="card-text">Smudge-proof and easy to apply. All-day wear.</p>
+                    <a href="{% url 'eyeliner_tryon' %}" class="btn" style="background-color: black; color: white;">Try Now</a>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

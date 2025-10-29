@@ -1,0 +1,54 @@
+{% extends "shop/base.html" %}
+{% block title %}Home | Virtual Make Try-On{% endblock %}
+{% block content %}
+{% load static %}
+<div class="desktop-frame">
+
+    <!-- Main Content -->
+    <div class="container mt-5">
+        <h1 class="hero-heading">We Deliver the Best Products</h1>
+        <p class="hero-subtext">
+            We make and deliver the Best Products, Always Thinking<br>
+            about our Customer
+        </p>
+        <div class="hero-button">
+            <a href="{% url 'products' %}" class="custom-explore-button">Explore</a>
+        </div>
+    </div>
+
+    <!-- Positioned Image -->
+    <div class="positioned-layout-image slide-in" id="layoutImage">
+        <img src="{% static 'shop/images/layout.jpg' %}" alt="Layout Image">
+    </div>
+
+    <!-- Partner Text -->
+    <p class="best_company">
+        The Best Company with us
+    </p>
+
+    <!-- Partner Logos -->
+    <div class="best_company_logo">
+        <img src="{% static 'shop/images/myntra.png' %}" alt="Company Logo 1" class="logo-left">
+        <img src="{% static 'shop/images/social.png' %}" alt="Company Logo 2" class="logo-center">
+        <img src="{% static 'shop/images/nykaa.png' %}" alt="Company Logo 3" class="logo-right">
+    </div>
+
+</div>
+{% endblock %}
+
+<!-- 👇 JavaScript added AFTER the block content ends -->
+<script>
+    const layoutImage = document.getElementById('layoutImage');
+
+    window.addEventListener('scroll', () => {
+        const scrollY = window.scrollY;
+
+        if (scrollY > 100) {
+            layoutImage.classList.remove('slide-in');
+            layoutImage.classList.add('slide-out');
+        } else {
+            layoutImage.classList.remove('slide-out');
+            layoutImage.classList.add('slide-in');
+        }
+    });
+</script>
